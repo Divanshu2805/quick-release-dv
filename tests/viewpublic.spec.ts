@@ -1,6 +1,6 @@
-import { ChangelogDetail } from "../e2e/ChangelogPage";
+import { ChangelogDetail } from "../e2e/changelogpage";
 import { LoginPage } from "../e2e/Login";
-import { viewPublic } from "../e2e/Viewpublic";
+import { viewPublic } from "../e2e/viewpublic";
 import { validCredentials } from "../e2e/testData/credential";
 import { test, expect } from "@playwright/test";
 
