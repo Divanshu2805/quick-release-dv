@@ -2,7 +2,7 @@ const { test, expect } = require("@playwright/test");
 const MailosaurClient = require("mailosaur");
 
 const SERVER_ID = process.env.MAILASAUR_SERVERID;
-const mailosaur = new MailosaurClient(process.env.MAILOSAUR_API_KEY);
+const mailosaur = process.env.MAILOSAUR_API_KEY;
 
 exports.ForgotPassword = class ForgotPassword {
   constructor(page) {
