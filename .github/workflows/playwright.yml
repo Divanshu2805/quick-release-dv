@@ -34,37 +34,39 @@ jobs:
       - name: Get Direct Artifact Download Link
         id: artifact_info
         run: |
-       # Wait a moment for the artifact to be processed
-        sleep 10
-    
-       # Call GitHub API to get artifact info
-        response=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-        https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts)
+          # Wait a moment for the artifact to be processed
+          sleep 10
+          
+          # Call GitHub API to get artifact info
+          response=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts)
 
-       # Log the full API response for debugging
-        echo "GitHub API Response: $response"
-    
-     # Check if artifacts exist in the response
-        artifact_count=$(echo "$response" | jq '.artifacts | length')
-        echo "Number of artifacts found: $artifact_count"
-        if [ "$artifact_count" -eq "0" ]; then
-        echo "Error: No artifacts found for this run."
-        exit 1
-        fi
+          # Log the full API response for debugging
+          echo "GitHub API Response: $response"
+          
+          # Check if artifacts exist in the response
+          artifact_count=$(echo "$response" | jq '.artifacts | length')
+          echo "Number of artifacts found: $artifact_count"
 
-      # Extract the download URL for the first artifact
-        download_url=$(echo "$response" | jq -r '.artifacts[0].archive_download_url')
-    
-      # Validate download URL
-        if [ -z "$download_url" ] || [ "$download_url" == "null" ]; then
-        echo "Error: Download URL is empty or null."
-        exit 1
-        fi
-    
-       # Set the download URL as output
-        echo "Download URL set as output."
-        echo "::set-output name=download_url::$download_url"
-        echo "Artifact Download URL: $download_url"
+          if [ "$artifact_count" -eq "0" ]; then
+            echo "Error: No artifacts found for this run."
+            exit 1
+          fi
+
+          # Extract the download URL for the first artifact
+          download_url=$(echo "$response" | jq -r '.artifacts[0].archive_download_url')
+          
+          # Validate download URL
+          if [ -z "$download_url" ] || [ "$download_url" == "null" ]; then
+            echo "Error: Download URL is empty or null."
+            exit 1
+          fi
+          
+          # Set the download URL as output
+          echo "Download URL set as output."
+          echo "::set-output name=download_url::$download_url"
+          echo "Artifact Download URL: $download_url"
+
       - name: Send Slack Notification with Direct Download Link
         if: always()
         env:
