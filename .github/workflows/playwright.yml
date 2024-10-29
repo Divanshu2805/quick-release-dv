@@ -41,7 +41,7 @@ jobs:
           # Check for the existence of the report file
           if [ -e playwright-report/index.html ]; then
             # Create the message containing the report link
-            REPORT_URL="https://github.com/${{ github.repository }}/suites/${{ github.run_id }}/artifacts"
+            REPORT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts"
             MESSAGE="Playwright tests have completed successfully. You can [view the report here]($REPORT_URL)."
             
             # Send the message to Slack
