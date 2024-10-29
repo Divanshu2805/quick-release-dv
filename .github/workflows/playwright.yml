@@ -31,6 +31,9 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
       - name: Get Direct Artifact Download Link
         id: artifact_info
         run: |
@@ -64,7 +67,7 @@ jobs:
           
           # Set the download URL as output
           echo "Download URL set as output."
-          echo "::set-output name=download_url::$download_url"
+          echo "download_url=$download_url" >> $GITHUB_ENV
           echo "Artifact Download URL: $download_url"
 
       - name: Send Slack Notification with Direct Download Link
@@ -73,7 +76,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
           # Construct the Slack message with the direct download link
-          MESSAGE="Playwright tests have completed. [Download the report directly here](${{ steps.artifact_info.outputs.download_url }})."
+          MESSAGE="Playwright tests have completed. [Download the report directly here](${{ env.download_url }})."
           
           # Send the message to Slack
           curl -X POST -H 'Content-Type: application/json' \
