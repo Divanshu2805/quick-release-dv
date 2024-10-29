@@ -19,7 +19,7 @@ jobs:
       run: echo pwd
 
     - name: Run Playwright tests
-      run: npx playwright test tests --project "chromium"
+      run: npx playwright test tests --project "chromium" --reporter=html
       
     - name: Clear cache
       run: rm -rf node_modules
@@ -32,9 +32,16 @@ jobs:
         retention-days: 30
 
     - name: Send Slack notification
-      if: ${{ always() }}
       env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL}}
       run: |
-        curl -X POST -H 'Content-type: application/json' \
-        --data '{"text":"Your message here"}' $SLACK_WEBHOOK_URL
+         # Check if the report file exists
+          if [ -f playwright-report/index.html ]; then
+            # Construct the message with the report link
+            MESSAGE="Playwright tests have completed. [View the report](https://github.com/${{ github.repository }}/suites/${{ github.run_id }}/artifacts)"
+            # Send message to Slack
+            curl -X POST -H 'Content-type: application/json' \
+            --data "{\"text\":\"$MESSAGE\"}" $SLACK_WEBHOOK_URL
+          else
+            echo "No report found."
+          fi
