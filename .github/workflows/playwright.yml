@@ -33,6 +33,20 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
+      - name: Get Artifact ID
+        id: get_artifact_id
+        run: |
+          # Use GitHub API to get the artifact information
+          response=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts)
+
+          # Extract the artifact ID of the latest artifact
+          artifact_id=$(echo $response | jq -r '.artifacts[0].id')
+
+          # Output the artifact ID
+          echo "Artifact ID: $artifact_id"
+          echo "::set-output name=id::$artifact_id"
+
       - name: Send Slack notification
         if: ${{ always() }}
         env:
@@ -41,7 +55,7 @@ jobs:
           # Check for the existence of the report file
           if [ -e playwright-report/index.html ]; then
             # Create the message containing the report link
-            REPORT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts"
+            REPORT_URL="https://github.com/${{ github.repository }}/actions/artifacts/${{ steps.get_artifact_id.outputs.id }}"
             MESSAGE="Playwright tests have completed successfully. You can [view the report here]($REPORT_URL)."
             
             # Send the message to Slack
