@@ -38,7 +38,7 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
-          # Construct the artifact URL for the Slack message
+          # Construct the artifact URL for the Slack messages
           ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           MESSAGE="Playwright tests have completed successfully. You can view the report on [GitHub Actions]($ARTIFACT_URL)."
           
