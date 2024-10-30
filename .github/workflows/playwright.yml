@@ -33,15 +33,41 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
+      - name: Get Artifact ID
+        id: get_artifact_id
+        run: |
+          # Wait a few seconds to ensure artifact is available
+          sleep 10
+          # Retrieve the artifact ID using GitHub API
+          response=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts)
+          
+          # Extract the first artifact ID from the response
+          artifact_id=$(echo $response | jq -r '.artifacts[0].id')
+
+          # Validate that the artifact_id was retrieved
+          if [[ "$artifact_id" == "null" ]]; then
+            echo "Error: Could not retrieve artifact ID"
+            exit 1
+          fi
+
+          # Output the artifact ID
+          echo "::set-output name=id::$artifact_id"
+
       - name: Send Slack notification
         if: ${{ always() }}
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
-          # Construct the artifact URL for the Slack messages
-          ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          MESSAGE="Playwright tests have completed successfully. You can view the report on [GitHub Actions]($ARTIFACT_URL)."
-          
-          # Send the message to Slack
-          curl -X POST -H 'Content-Type: application/json' \
-          --data "{\"text\":\"$MESSAGE\"}" $SLACK_WEBHOOK_URL
+          # Check for the existence of the report file
+          if [ -e playwright-report/index.html ]; then
+            # Construct the URL for the artifact
+            ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            MESSAGE="Playwright tests have completed successfully. You can [view the report here]($ARTIFACT_URL)."
+            
+            # Send the message to Slack
+            curl -X POST -H 'Content-Type: application/json' \
+            --data "{\"text\":\"$MESSAGE\"}" $SLACK_WEBHOOK_URL
+          else
+            echo "No report found. Skipping Slack notification."
+          fi
