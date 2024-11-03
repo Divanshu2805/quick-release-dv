@@ -63,7 +63,7 @@ jobs:
           if [ -e playwright-report/index.html ]; then
             # Construct the URL for the artifact
             ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-            MESSAGE="Playwright tests have completed successfully. You can [view the report here]($ARTIFACT_URL)."
+            MESSAGE="Playwright tests have completed successfully. You can [aap test report download kar skte h]($ARTIFACT_URL)."
             
             # Send the message to Slack
             curl -X POST -H 'Content-Type: application/json' \
